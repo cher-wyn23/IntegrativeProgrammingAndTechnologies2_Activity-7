@@ -1,0 +1,123 @@
+<div class="um-page">
+  <div class="um-layout">
+    <section class="um-card um-form">
+      <h1 class="um-title">User Management</h1>
+
+      <div class="um-domain-error" *ngIf="domainError">{{ domainError }}</div>
+
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <div class="um-field">
+          <label for="username">Username</label>
+          <input id="username" type="text" formControlName="username" />
+          <div class="um-error" *ngIf="isInvalid('username')">
+            <span *ngIf="userForm.get('username')?.errors?.['required']">Username is required.</span>
+            <span *ngIf="userForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters.</span>
+            <span *ngIf="userForm.get('username')?.errors?.['maxlength']">Username cannot exceed 20 characters.</span>
+          </div>
+        </div>
+
+        <div class="um-field">
+          <label for="email">Email</label>
+          <input id="email" type="email" formControlName="email" />
+          <div class="um-error" *ngIf="isInvalid('email')">
+            <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</span>
+            <span *ngIf="userForm.get('email')?.errors?.['email']">Enter a valid email address.</span>
+          </div>
+        </div>
+
+        <div class="um-field">
+          <label for="contactNumber">Contact Number</label>
+          <input id="contactNumber" type="tel" formControlName="contactNumber" />
+          <div class="um-error" *ngIf="isInvalid('contactNumber')">
+            <span *ngIf="userForm.get('contactNumber')?.errors?.['required']">Contact number is required.</span>
+            <span *ngIf="userForm.get('contactNumber')?.errors?.['pattern']">Use digits (10-15) only.</span>
+          </div>
+        </div>
+
+        <div class="um-field">
+          <label for="address">Address</label>
+          <textarea id="address" rows="3" formControlName="address"></textarea>
+          <div class="um-error" *ngIf="isInvalid('address')">
+            <span *ngIf="userForm.get('address')?.errors?.['required']">Address is required.</span>
+            <span *ngIf="userForm.get('address')?.errors?.['minlength']">Address must be at least 3 characters.</span>
+          </div>
+        </div>
+
+        <div class="um-field">
+          <label for="role">Role</label>
+          <select id="role" formControlName="role">
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+          </select>
+        </div>
+
+        <div class="um-field">
+          <label for="password">Password</label>
+          <input id="password" type="password" formControlName="password" />
+          <div class="um-error" *ngIf="isInvalid('password')">
+            <span *ngIf="userForm.get('password')?.errors?.['required']">Password is required.</span>
+            <span *ngIf="userForm.get('password')?.errors?.['minlength']">Password must be at least 5 characters.</span>
+            <span *ngIf="userForm.get('password')?.errors?.['maxlength']">Password cannot exceed 8 characters.</span>
+          </div>
+        </div>
+
+        <div class="um-actions">
+          <button class="um-primary" type="submit">{{ editingOriginalUsername ? 'Update User' : 'Create User' }}</button>
+          <button
+            class="um-secondary"
+            type="button"
+            *ngIf="editingOriginalUsername"
+            (click)="resetForm()"
+          >
+            Clear
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="um-card um-table">
+      <div class="um-table-head">
+        <h2 class="um-table-title">Users</h2>
+
+        <input
+          class="um-search"
+          type="text"
+          placeholder="Search by username, email, contact number, or address..."
+          [value]="searchQuery"
+          (input)="onSearchInput($event)"
+        />
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Contact Number</th>
+            <th>Address</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="filteredUsers.length === 0">
+            <td colspan="6" class="um-empty">No users found.</td>
+          </tr>
+
+          <tr *ngFor="let user of filteredUsers" [ngClass]="{ 'um-row': true }">
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.contactNumber }}</td>
+            <td>{{ user.address }}</td>
+            <td>{{ user.role }}</td>
+            <td class="um-actions-cell">
+              <button class="um-action" type="button" (click)="startEdit(user)">Edit</button>
+              <button class="um-action um-danger" type="button" (click)="onDelete(user)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
+

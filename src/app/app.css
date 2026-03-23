@@ -185,6 +185,23 @@ button:hover{
   font-weight:600;
 }
 
+.switch-link{
+  padding:0 !important;
+  width:auto !important;
+  border:none !important;
+  background:none !important;
+  border-radius:0 !important;
+  color:#0077b6;
+  cursor:pointer;
+  font-weight:600;
+  font-size:inherit;
+}
+
+.switch-link:hover{
+  transform:none !important;
+  box-shadow:none !important;
+}
+
 /* ERROR MESSAGE */
 .message{
   text-align:center;
@@ -245,4 +262,24 @@ table tbody tr:hover{
 /* LAST ROW REMOVE BORDER */
 table tbody tr:last-child td{
   border-bottom:none;
+}
+
+/* User management wrapper (shown after Sign In) */
+.um-manage-wrap{
+  background:#03131f;
+  min-height:100vh;
+  padding:18px;
+  box-sizing:border-box;
+}
+
+.um-manage-top{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:12px;
+}
+
+.um-manage-top button{
+  width:auto !important;
+  border-radius:12px;
+  padding:10px 16px !important;
 }

@@ -1,0 +1,169 @@
+.um-page{
+  padding:24px;
+  background:#03131f;
+  min-height:100vh;
+  box-sizing:border-box;
+  color:#fff;
+}
+
+.um-layout{
+  display:grid;
+  grid-template-columns: 420px 1fr;
+  gap:24px;
+  align-items:start;
+}
+
+.um-card{
+  background:rgba(255,255,255,0.92);
+  color:#0b2230;
+  border-radius:16px;
+  padding:20px;
+  width:100%;
+  max-width:420px;
+  box-shadow:0 24px 55px rgba(0,0,0,0.2);
+}
+
+.um-table{
+  width:100%;
+  max-width:none;
+  overflow-x:auto;
+}
+
+.um-title{
+  margin:0 0 12px 0;
+  font-family:'Playfair Display', serif;
+  font-size:34px;
+}
+
+.um-domain-error{
+  background:#fff0f0;
+  border:1px solid #ffb3b3;
+  color:#a70000;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:14px;
+}
+
+.um-form form{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.um-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.um-field label{
+  font-weight:600;
+  font-size:13px;
+}
+
+.um-field input,
+.um-field select,
+.um-field textarea{
+  border-radius:10px;
+  border:1px solid #ccd4dd;
+  padding:10px 12px;
+  font-size:14px;
+  outline:none;
+  background:#ffffff;
+}
+
+.um-field input:focus,
+.um-field select:focus,
+.um-field textarea:focus{
+  border-color:#0077b6;
+  box-shadow:0 0 0 2px rgba(0,119,182,0.15);
+}
+
+.um-error{
+  font-size:12px;
+  color:#c62828;
+}
+
+.um-actions{
+  display:flex;
+  gap:12px;
+  margin-top:8px;
+}
+
+.um-primary,
+.um-secondary{
+  width:100%;
+}
+
+/* Override the global `button { width: 100% }` so table action buttons fit. */
+.um-table button.um-action{
+  width:auto !important;
+  padding:8px 12px !important;
+  margin:0;
+  border-radius:10px;
+}
+
+.um-table-head{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.um-table-title{
+  margin:0;
+  font-size:20px;
+}
+
+.um-search{
+  width:100%;
+  border-radius:10px;
+  border:1px solid #ccd4dd;
+  padding:10px 12px;
+  font-size:14px;
+}
+
+.um-empty{
+  text-align:center;
+  padding:16px 8px;
+}
+
+/* Table tweaks */
+.um-table table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px;
+}
+
+.um-table th{
+  text-align:left;
+  padding:10px 12px;
+  background:linear-gradient(135deg,#00bcd4,#0077b6);
+  color:#fff;
+}
+
+.um-table td{
+  padding:10px 12px;
+  border-bottom:1px solid #e8e8e8;
+}
+
+.um-actions-cell{
+  display:flex;
+  gap:10px;
+  white-space:nowrap;
+}
+
+.um-danger{
+  background:linear-gradient(135deg,#ff4d4d,#b30000) !important;
+}
+
+@media (max-width: 1020px){
+  .um-layout{
+    grid-template-columns: 1fr;
+  }
+
+  .um-card{
+    max-width:none;
+  }
+}
+

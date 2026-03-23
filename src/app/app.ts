@@ -1,47 +1,71 @@
-import { Component, signal, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ReactiveFormsModule, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { usersModel } from './Models/usersModel';
+import { UserManagementComponent } from './user-management/user-management.component';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UserService } from './user';
+import { UserFormData, UserRoleType } from './userEntity';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
 export class App {
+  public readonly userManagementCmp = UserManagementComponent;
 
-  protected readonly title = signal('login');
+  public isLogin: boolean = true;
+  public view: 'auth' | 'manage' = 'auth';
 
-  private fb = inject(FormBuilder);
+  public submittedLogin: boolean = false;
+  public submittedRegister: boolean = false;
 
-public loginForm = this.fb.group({
-    username: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(8)])
-  });
-  public registerForm = this.fb.group({
-    regEmail: new FormControl('', [Validators.required, Validators.email]),
-    usernameReg: new FormControl('', [Validators.required]),
-    regPassword: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(8)]),
-    role: new FormControl<'student' | 'instructor'>('student', [Validators.required])
-  });
+  public message: string = '';
 
-  isLogin: boolean = true;
-  submittedLogin: boolean = false;
-  submittedRegister: boolean = false;
+  public loginForm!: FormGroup;
+  public registerForm!: FormGroup;
 
-  role: string = 'student';
-  message: string = '';
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly userService: UserService,
+  ) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
 
-  students: usersModel[] = [];
-  instructors: usersModel[] = [];
-  newuserList: usersModel[] = [];
-  hasValidated: boolean = false;
+    this.loginForm = this.fb.nonNullable.group({
+      username: [
+        '',
+        [
+          Validators.required,
+          // Accept either username or email.
+          (control: AbstractControl) => {
+            const v = (control.value ?? '').trim();
+            if (emailRegex.test(v) || usernameRegex.test(v)) return null;
+            return { usernameOrEmail: true };
+          },
+        ],
+      ],
+      password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(8)]],
+    });
 
-  switchForm(){
+    this.registerForm = this.fb.nonNullable.group({
+      usernameReg: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9_]+$/)],
+      ],
+      regEmail: ['', [Validators.required, Validators.email]],
+      contactNumber: ['', [Validators.required, Validators.pattern(/^[0-9\s-+()]{10,20}$/)]],
+      address: ['', [Validators.required, Validators.minLength(3)]],
+      role: ['student' as UserRoleType, [Validators.required]],
+      regPassword: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(8)]],
+    });
+  }
+
+  public switchForm(): void {
     this.isLogin = !this.isLogin;
+    // If user is switching between Sign In / Sign Up, ensure the management table is hidden.
+    this.view = 'auth';
     this.message = '';
     this.loginForm.reset();
     this.registerForm.reset();
@@ -49,65 +73,67 @@ public loginForm = this.fb.group({
     this.submittedRegister = false;
   }
 
-  register(){
-    this.submittedRegister = true;
-    this.registerForm.markAllAsTouched();
-
-    if(this.registerForm.invalid){
-      this.message = "Please fix errors in registration form.";
-      return;
-    }
-
-    const newUser: usersModel = {
-      username: this.registerForm.get('usernameReg')?.value!,
-      email: this.registerForm.get('regEmail')?.value!,
-      password: this.registerForm.get('regPassword')?.value!,
-      role: this.registerForm.get('role')?.value!
-    };
-
-    this.newuserList.push(newUser);
-
-    if (newUser.role === 'student') {
-      this.students.push(newUser);
-    } else if (newUser.role === 'instructor') {
-      this.instructors.push(newUser);
-    }
-    this.hasValidated = true;
-    this.message = "Registration successful";
-  }
-
-  Validate(){
+  public validateLogin(): void {
     this.submittedLogin = true;
+    this.message = '';
     this.loginForm.markAllAsTouched();
 
-    if(this.loginForm.invalid){
-      this.message = "Invalid login credentials. Check your username/email or password.";
+    if (this.loginForm.invalid) return;
+
+    const usernameOrEmail = this.loginForm.getRawValue().username.trim().toLowerCase();
+    const password = this.loginForm.getRawValue().password;
+
+    const users = this.userService.list();
+    const found = users.find((u) => {
+      const uName = u.username.trim().toLowerCase();
+      const uEmail = u.email.trim().toLowerCase();
+      return (uName === usernameOrEmail || uEmail === usernameOrEmail) && u.password === password;
+    });
+
+    if (!found) {
+      this.message = 'Invalid credentials';
       return;
     }
 
-    const username = this.loginForm.get('username')?.value;
-    const password = this.loginForm.get('password')?.value;
-
-    const student = this.students.find(
-      u => u.username === username && u.password === password
-    );
-
-    const instructor = this.instructors.find(
-      u => u.username === username && u.password === password
-    );
-
-    if(student){
-      this.message = "Logged in as Student";
-    }
-    else if(instructor){
-      this.message = "Logged in as Instructor";
-    }
-    else{
-      this.message = "Invalid credentials";
-    }
-
-    console.log("Username:", username);
-    console.log("Password:", password);
+    this.view = 'manage';
   }
 
+  public register(): void {
+    this.submittedRegister = true;
+    this.message = '';
+    this.registerForm.markAllAsTouched();
+
+    if (this.registerForm.invalid) return;
+
+    const value = this.registerForm.getRawValue();
+    const payload: UserFormData = {
+      username: value.usernameReg,
+      email: value.regEmail,
+      contactNumber: value.contactNumber,
+      address: value.address,
+      role: value.role,
+      password: value.regPassword,
+    };
+
+    try {
+      this.userService.create(payload);
+      this.message = 'Registration successful';
+      // After sign up, keep user on auth view (no table) and show login form.
+      this.view = 'auth';
+      // After sign up, show login form.
+      this.isLogin = true;
+      this.submittedRegister = false;
+      this.registerForm.reset();
+    } catch (err) {
+      this.message = this.userService.mapErrorToMessage(err);
+    }
+  }
+
+  public logout(): void {
+    this.view = 'auth';
+    this.isLogin = true;
+    this.message = '';
+    this.submittedLogin = false;
+    this.submittedRegister = false;
+  }
 }
